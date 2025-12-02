@@ -17,6 +17,7 @@ function App() {
     setError(null);
     
     try {
+      console.log('here');
       const schedule = await fetchSchedule(selectedYear);
       console.log('Response received:', schedule);
       setSchedule(schedule);

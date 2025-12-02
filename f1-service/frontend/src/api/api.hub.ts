@@ -1,7 +1,7 @@
 
 // Fetch the Schedule for a Given Year
 export async function fetchSchedule(year: number): Promise<any> {
-    const response = await fetch(`/schedule/${year}`);
+    const response = await fetch(`http://localhost:8000/api/schedule/${year}`);
     if (!response.ok) {
         throw new Error(`Error fetching schedule for year ${year}: ${response.statusText}`);
     } else {
