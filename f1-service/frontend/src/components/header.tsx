@@ -1,6 +1,6 @@
 export function Header() {
     return (
-      <header className="bg-red-600 shadow-lg">
+      <header className="mx-auto backdrop-blur-xl bg-gray-900/85 border border-red-600/30 rounded-2xl p-8 md:p-12 shadow-2xl">
         <div className="flex flex-row">
             <div className="container mx-auto px-4 py-3">
                 <h1 className="text-4xl font-bold text-white">Formula 1 Service</h1>
