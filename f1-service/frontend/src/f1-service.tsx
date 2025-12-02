@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchSchedule } from './api/api.hub';
 import { ScheduleEvent } from './models/models';
+import { Header, Footer } from './components/index';
 
 function App() {
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
@@ -30,13 +31,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      {/* Header */}
-      <header className="bg-red-600 shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-4xl font-bold text-white">🏎️ F1 Schedule Service</h1>
-          <p className="text-red-100 mt-2">Formula 1 Race Calendar</p>
-        </div>
-      </header>
+      <Header/>
 
       {/* Year Selector */}
       <div className="container mx-auto px-4 py-6">
@@ -121,13 +116,7 @@ function App() {
           </div>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="container mx-auto px-4 py-8 mt-12 border-t border-gray-700">
-        <p className="text-center text-gray-500">
-          F1 Schedule Service • Powered by FastAPI & React
-        </p>
-      </footer>
+      <Footer/>
     </div>
   );
 }
