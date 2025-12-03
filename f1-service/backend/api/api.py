@@ -1,14 +1,26 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from models import F1Data, F1Response, ScheduleResponse, SessionResponse, StandingsResponse
-from typing import List, Optional
+from models import ScheduleResponse, SessionResponse, StandingsResponse
 import uvicorn
 import fastf1
-import pandas as pd
 import json
-from utils import aggregate_weekend
+from utils import aggregate_weekend, usage_tracking_middleware
+from kafka_producer import kafka_producer
 
-app = FastAPI(title="F1 Service API", version="0.1")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    print("F1 Service starting up...")
+    yield
+    # Shutdown
+    print("F1 Service shutting down...")
+    kafka_producer.close()
+
+app = FastAPI(title="F1 Service API", version="0.1", lifespan=lifespan)
+
+app.middleware("http")(usage_tracking_middleware)
+app.middleware("https")(usage_tracking_middleware)
 
 # Configure CORS
 app.add_middleware(

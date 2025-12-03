@@ -1,5 +1,31 @@
+from fastapi import Request
+import time
+from kafka_producer import kafka_producer
 import pandas as pd
 import fastf1
+
+async def usage_tracking_middleware(request: Request, call_next):
+    """Middleware to track API usage and send to Kafka"""
+    start_time = time.time()
+    
+    response = await call_next(request)
+    
+    response_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+    
+    # Extract query parameters
+    query_params = dict(request.query_params)
+    
+    # Send usage event to Kafka
+    kafka_producer.send_usage_event(
+        endpoint=request.url.path,
+        method=request.method,
+        status_code=response.status_code,
+        response_time=response_time,
+        user_agent=request.headers.get('user-agent'),
+        query_params=query_params
+    )
+    
+    return response
 
 def aggregate_weekend(year: int, round: int) -> pd.DataFrame:
     """Sum the total points gained by each driver over a race weekend"""
