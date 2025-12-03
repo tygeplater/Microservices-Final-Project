@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import F1Data, F1Response, ScheduleResponse
+from models import F1Data, F1Response, ScheduleResponse, StandingsResponse
 from typing import List, Optional
 import uvicorn
 import fastf1
 import pandas as pd
 import json
+from utils import aggregate_weekend
 
 app = FastAPI(title="F1 Service API", version="0.1")
 
@@ -54,6 +55,15 @@ async def get_session_info():
     # Get 
     return {"message": "Session information retrieved successfully"}
 
+@app.get("/api/weekend-results")
+async def get_weekend_results(year: int, round: int | str):
+    """Get F1 weekend results for a specific year and round"""
+    result = aggregate_weekend(year, round)
+    weekend_json = result.to_json(orient='records', date_format='iso')
+    weekend_data = json.loads(weekend_json)
+    return StandingsResponse(status=200, standings=weekend_data)
+
+
 @app.get("/api/schedule")
 async def get_schedule(year: int):
     """Get F1 schedule for a specific year"""
@@ -66,7 +76,6 @@ async def get_schedule(year: int):
 @app.get("/health")
 async def health_check():
     return {"status": 200, "message": "f1-service is healthy"}
-
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)

@@ -43,7 +43,7 @@ export function Schedule() {
                 onChange={(e) => setYear(Number(e.target.value))}
                 className="bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
-                {[2024, 2023, 2022, 2021, 2020, 2019, 2018].map((y) => (
+                {Array.from({ length: new Date().getFullYear() - 1950 + 1 }, (_, i) => new Date().getFullYear() - i).map((y) => (
                     <option key={y} value={y}>{y}</option>
                 ))}
                 </select>
@@ -76,9 +76,6 @@ export function Schedule() {
                         <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         Round {event.RoundNumber}
                         </span>
-                        {event.F1ApiSupport && (
-                        <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">API</span>
-                        )}
                     </div>
 
                     {/* Event Info */}

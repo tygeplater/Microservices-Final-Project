@@ -15,3 +15,7 @@ class F1Response(BaseModel):
 class ScheduleResponse(BaseModel):
     status: int
     schedule: Any
+
+class StandingsResponse(BaseModel):
+    status: int
+    standings: Any
