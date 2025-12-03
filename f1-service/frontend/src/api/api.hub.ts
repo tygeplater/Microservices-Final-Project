@@ -11,3 +11,14 @@ export async function fetchSchedule(year: number): Promise<any> {
         return schedule;
     }
 }
+
+// Fetch Weekend Results for a Given Year and Round
+export async function fetchWeekendResults(year: number, round: number | string): Promise<any> {
+    const response = await fetch(`http://localhost:8000/api/weekend-results?year=${year}&round=${round}`);
+    if (!response.ok) {
+        throw new Error(`Error fetching weekend results for year ${year}, round ${round}: ${response.statusText}`);
+    } else {
+        const data = await response.json();
+        return data.standings;
+    }
+}

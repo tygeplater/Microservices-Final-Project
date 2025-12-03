@@ -23,3 +23,24 @@ export interface ScheduleEvent {
   Session5Date: string;
   F1ApiSupport: boolean;
 }
+
+export interface DriverResult {
+  DriverId: string;
+  Points: number;
+  DriverNumber: string;
+  BroadcastName: string;
+  Abbreviation: string;
+  TeamName: string;
+  TeamColor: string;
+  TeamId: string;
+  FirstName: string;
+  LastName: string;
+  FullName: string;
+  HeadshotUrl: string;
+  CountryCode: string;
+}
+
+export interface StandingsResponse {
+  status: number;
+  standings: DriverResult[];
+}
