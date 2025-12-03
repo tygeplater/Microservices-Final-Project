@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import F1Data, F1Response, ScheduleResponse, StandingsResponse
+from models import F1Data, F1Response, ScheduleResponse, SessionResponse, StandingsResponse
 from typing import List, Optional
 import uvicorn
 import fastf1
@@ -19,41 +19,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Sample data
-sample_data = [
-    F1Data(id=1, name="Lewis Hamilton", description="7-time World Champion"),
-    F1Data(id=2, name="Max Verstappen", description="3-time World Champion"),
-    F1Data(id=3, name="Fernando Alonso", description="2-time World Champion"),
-]
-
-
 # Routes
 @app.get("/")
 async def root():
     return {"message": "F1 Service API", "status": "running"}
 
-
-@app.get("/api/data", response_model=F1Response)
-async def get_data():
-    """Get F1 data"""
-    return F1Response(
-        message="F1 data retrieved successfully",
-        data=sample_data
-    )
-
-
-@app.get("/api/data/{item_id}", response_model=F1Data)
-async def get_data_by_id(item_id: int):
-    """Get F1 data by ID"""
-    for item in sample_data:
-        if item.id == item_id:
-            return item
-    raise HTTPException(status_code=404, detail="Item not found")
-
 @app.get("/api/session-info")
-async def get_session_info():
-    # Get 
-    return {"message": "Session information retrieved successfully"}
+async def get_session_info(year: int, round: int | str, sessionCd: str):
+    # Get session info
+    session = fastf1.get_session(year, round, sessionCd)
+
+    # Minimize Data Sent
+    session.load(telemetry=False, weather=False, messages=False, livedata=False)
+    results = session.results
+    session_json = results.to_json(orient='records', date_format='iso')
+    session_data = json.loads(session_json)
+    return SessionResponse(status=200, session=session_data)
 
 @app.get("/api/weekend-results")
 async def get_weekend_results(year: int, round: int | str):

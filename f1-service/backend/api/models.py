@@ -19,3 +19,7 @@ class ScheduleResponse(BaseModel):
 class StandingsResponse(BaseModel):
     status: int
     standings: Any
+
+class SessionResponse(BaseModel):
+    status: int
+    session: Any
