@@ -1,4 +1,4 @@
 export { HomePage } from './HomePage';
-export { Schedule } from './schedule';
+export { Schedule } from './Schedule';
 export { Standings } from './Standings';
 // export { Sessions } from './Sessions';
