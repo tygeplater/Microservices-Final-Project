@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Dict
+from models import Statistics, StatsResponse
 import uvicorn
 
 app = FastAPI(title="Stats Service API", version="1.0.0")
@@ -14,19 +14,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# Models
-class Statistics(BaseModel):
-    metric: str
-    value: float
-    unit: str
-
-
-class StatsResponse(BaseModel):
-    message: str
-    stats: List[Statistics]
-
 
 # Sample data
 sample_stats = [
