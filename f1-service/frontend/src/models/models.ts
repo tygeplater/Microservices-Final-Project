@@ -25,11 +25,10 @@ export interface ScheduleEvent {
 }
 
 export interface DriverResult {
-  DriverId: string;
-  Points: number;
-  DriverNumber: string;
+  DriverNumber: number;
   BroadcastName: string;
   Abbreviation: string;
+  DriverId: string;
   TeamName: string;
   TeamColor: string;
   TeamId: string;
@@ -38,6 +37,16 @@ export interface DriverResult {
   FullName: string;
   HeadshotUrl: string;
   CountryCode: string;
+  Position: number;
+  ClassifiedPosition: string;
+  GridPosition: number;
+  Q1: string | null;
+  Q2: string | null;
+  Q3: string | null;
+  Time: string;
+  Status: string;
+  Points: number;
+  Laps: number;
 }
 
 export interface StandingsResponse {

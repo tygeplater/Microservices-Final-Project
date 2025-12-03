@@ -15,40 +15,39 @@ def aggregate_weekend(year: int, round: int) -> pd.DataFrame:
     
     eventName = event_row.iloc[0]['EventName']
     
-    points_sessions = ['S', 'SS', 'SQ', 'R']
-    weekend_data = []
+    sprint_sessions = ['S', 'SS', 'SQ']
+    weekend_data_df = pd.DataFrame()
 
-    for session_id in points_sessions:
+    # Load race results first
+    session = fastf1.get_session(year, eventName, 'R')
+    session.load(laps=False, telemetry=False, weather=False, messages=False, livedata=False)
+    results = session.results
+    weekend_data_df = results.copy()
+
+    # Load sprint sessions and add points to existing drivers
+    for session_id in sprint_sessions:
         try:
             session = fastf1.get_session(year, eventName, session_id)
             session.load(laps=False, telemetry=False, weather=False, messages=False, livedata=False)
-            results = session.results
-            weekend_data.append(results)
+            sprint_results = session.results
+            
+            # Add sprint points to the corresponding drivers in weekend_data_df
+            for idx, sprint_row in sprint_results.iterrows():
+                driver_id = sprint_row['DriverId']
+                sprint_points = sprint_row['Points']
+                
+                # Find the driver in weekend_data_df and add points
+                driver_mask = weekend_data_df['DriverId'] == driver_id
+                if driver_mask.any():
+                    weekend_data_df.loc[driver_mask, 'Points'] += sprint_points
+                    
         except Exception as e:
             print(f"Could not load session {session_id}: {e}")
 
-    if not weekend_data:
+    if weekend_data_df.empty:
         return pd.DataFrame()  # Return empty DataFrame if no data
 
-    # Combine all session data
-    all_data = pd.concat(weekend_data)
-    
-    # Only sum the Points column, keep first value for driver info
-    aggregated = all_data.groupby('DriverId', as_index=False).agg({
-        'Points': 'sum',
-        'DriverNumber': 'first',
-        'BroadcastName': 'first',
-        'Abbreviation': 'first',
-        'TeamName': 'first',
-        'TeamColor': 'first',
-        'TeamId': 'first',
-        'FirstName': 'first',
-        'LastName': 'first',
-        'FullName': 'first',
-        'HeadshotUrl': 'first',
-        'CountryCode': 'first'
-    })
-    
-    aggregated = aggregated.sort_values(by='Points', ascending=False).reset_index(drop=True)
+    # Sort by points descending
+    weekend_data_df = weekend_data_df.sort_values(by='Points', ascending=False).reset_index(drop=True)
 
-    return aggregated
+    return weekend_data_df

@@ -49,8 +49,13 @@ export function Standings() {
         try {
           const results: DriverResult[] = await fetchWeekendResults(year, event.RoundNumber);
           
+          // Track which drivers raced in this event
+          const driversInThisRound = new Set<string>();
+  
           // Update cumulative points and positions
           results.forEach((result) => {
+            driversInThisRound.add(result.DriverId);
+            
             if (!driverPointsMap.has(result.DriverId)) {
               driverPointsMap.set(result.DriverId, {
                 info: result,
@@ -63,8 +68,9 @@ export function Standings() {
             driverData.cumulativePoints += result.Points;
           });
 
-          // Calculate positions after this round
+          // Calculate positions after this round - only for drivers who have raced at least once
           const sortedDrivers = Array.from(driverPointsMap.entries())
+            .filter(([driverId, data]) => data.positions.length > 0 || driversInThisRound.has(driverId))
             .sort((a, b) => b[1].cumulativePoints - a[1].cumulativePoints);
 
           sortedDrivers.forEach(([driverId, data], index) => {
@@ -81,14 +87,24 @@ export function Standings() {
 
       // Convert to array format
       const standingsArray: DriverStanding[] = Array.from(driverPointsMap.entries())
-        .map(([driverId, data]) => ({
-          driverId,
-          abbreviation: data.info.Abbreviation || driverId,
-          teamColor: data.info.TeamColor || '#000000',
-          fullName: data.info.FullName || driverId,
-          positions: data.positions,
-        }))
-        .filter(driver => driver.positions.length > 0)
+        .filter(([driverId, data]) => {
+          console.log(`Driver: ${driverId}, Positions: ${data.positions.length}, Cumulative Points: ${data.cumulativePoints}`);
+          return data.positions.length > 0;
+        })
+        .map(([driverId, data], index) => {
+          // Generate a unique color for each driver based on their index
+          const hue = (index * 137.5) % 360;
+          const saturation = 70 + (index % 3) * 10;
+          const lightness = 50 + (index % 2) * 10;
+          
+          return {
+            driverId,
+            abbreviation: data.info.Abbreviation || driverId,
+            teamColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+            fullName: data.info.FullName || driverId,
+            positions: data.positions,
+          };
+        })
         .sort((a, b) => {
           const aFinal = a.positions[a.positions.length - 1]?.position || 999;
           const bFinal = b.positions[b.positions.length - 1]?.position || 999;
@@ -109,9 +125,9 @@ export function Standings() {
     }
 
     const maxRound = Math.max(...schedule.map(e => e.RoundNumber));
-    const chartWidth = 900;
-    const chartHeight = 600;
-    const padding = { top: 40, right: 200, bottom: 60, left: 60 };
+    const chartWidth = 1400;
+    const chartHeight = 700;
+    const padding = { top: 40, right: 220, bottom: 60, left: 60 };
     const plotWidth = chartWidth - padding.left - padding.right;
     const plotHeight = chartHeight - padding.top - padding.bottom;
 
@@ -202,7 +218,8 @@ export function Standings() {
 
         {/* Driver lines */}
         {driverStandings.map((driver) => {
-          const color = driver.teamColor.startsWith('#') ? driver.teamColor : `#${driver.teamColor}`;
+          const color = driver.teamColor;
+          
           const points = driver.positions.map(pos => {
             const x = padding.left + (pos.round / maxRound) * plotWidth;
             const y = padding.top + ((pos.position - 1) / maxPosition) * plotHeight;
@@ -219,8 +236,8 @@ export function Standings() {
                 d={pathData}
                 fill="none"
                 stroke={color}
-                strokeWidth="2"
-                opacity="0.8"
+                strokeWidth="2.5"
+                opacity="0.9"
               />
               {points.map((point, idx) => (
                 <circle
@@ -238,10 +255,10 @@ export function Standings() {
         })}
 
         {/* Legend */}
-        {driverStandings.slice(0, 20).map((driver, idx) => {
+        {driverStandings.map((driver, idx) => {
           const x = chartWidth - padding.right + 20;
-          const y = padding.top + idx * 25;
-          const color = driver.teamColor.startsWith('#') ? driver.teamColor : `#${driver.teamColor}`;
+          const y = padding.top + idx * 22;
+          const color = driver.teamColor;
 
           return (
             <g key={`legend-${driver.driverId}`}>
@@ -257,9 +274,9 @@ export function Standings() {
                 x={x + 40}
                 y={y + 5}
                 fill="#fff"
-                fontSize="12"
+                fontSize="11"
               >
-                {driver.abbreviation}
+                {driver.fullName}
               </text>
             </g>
           );
@@ -306,7 +323,7 @@ export function Standings() {
           <div className="text-xl">Loading championship data...</div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 overflow-x-auto">
           {renderChart()}
         </div>
       )}
