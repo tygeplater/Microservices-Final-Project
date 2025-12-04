@@ -13,6 +13,8 @@ from .kafka_producer import kafka_producer
 async def lifespan(app: FastAPI):
     # Startup
     print("F1 Service starting up...")
+    kafka_producer.__init__()
+
     yield
     # Shutdown
     print("F1 Service shutting down...")
@@ -20,17 +22,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="F1 Service API", version="0.1", lifespan=lifespan)
 
-app.middleware("http")(usage_tracking_middleware)
-app.middleware("https")(usage_tracking_middleware)
-
-# Configure CORS
+# Configure CORS - Must be added BEFORE other middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.middleware("http")(usage_tracking_middleware)
+app.middleware("https")(usage_tracking_middleware)
 
 # Routes
 

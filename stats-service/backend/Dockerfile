@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY api/ ./api/
 
-# Expose Port 8000
+# Expose Port 8001
 EXPOSE 8001
 
 ENV PYTHONUNBUFFERED=1

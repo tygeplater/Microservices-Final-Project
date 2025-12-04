@@ -23,6 +23,7 @@ class StatsKafkaConsumer:
                 auto_offset_reset='earliest',
                 enable_auto_commit=True
             )
+            
             logger.info(f"Kafka consumer connected to {kafka_server_endpoint}")
         except Exception as e:
             logger.error(f"Failed to connect to Kafka: {e}")
