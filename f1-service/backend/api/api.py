@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from models import ScheduleResponse, SessionResponse, StandingsResponse
+from .models import ScheduleResponse, SessionResponse, StandingsResponse
 import uvicorn
 import fastf1
 import json
-from utils import aggregate_weekend, usage_tracking_middleware
-from kafka_producer import kafka_producer
+from .utils import aggregate_weekend, usage_tracking_middleware
+from .kafka_producer import kafka_producer
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -2,10 +2,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from models import Statistics, StatsResponse
+from .models import Statistics, StatsResponse
 import uvicorn
-from kafka_consumer import kafka_consumer
-from database import get_db, APIUsage, init_db
+from .kafka_consumer import kafka_consumer
+from .database import get_db, APIUsage, init_db
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from datetime import datetime, timedelta

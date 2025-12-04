@@ -1,7 +1,7 @@
 from kafka import KafkaConsumer
 import json
 import logging
-from database import SessionLocal, APIUsage, init_db
+from .database import SessionLocal, APIUsage, init_db
 from datetime import datetime
 import os
 import threading

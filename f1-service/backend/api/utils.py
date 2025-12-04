@@ -1,6 +1,6 @@
 from fastapi import Request
 import time
-from kafka_producer import kafka_producer
+from .kafka_producer import kafka_producer
 import pandas as pd
 import fastf1
 
