@@ -121,7 +121,7 @@ export function SessionPage() {
                 setLoading(true);
                 setError(null);
                 try {
-                    const round = event.RoundNumber.toString();
+                    const round = event.EventName
                     const data = await fetchSessionInfo(year, round, selectedSessionCode);
                     setSessionInfo(data);
                 } catch (err) {
