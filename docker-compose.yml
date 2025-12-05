@@ -23,9 +23,9 @@ services:
     networks:
       - microservices-network
 
-  postgres:
+  postgres-stats:
     image: postgres:15-alpine
-    container_name: postgres
+    container_name: postgres-stats
     environment:
       POSTGRES_USER: platert
       POSTGRES_PASSWORD: password1
@@ -33,7 +33,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_stats_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U platert -d stats_db"]
       interval: 10s
@@ -53,7 +53,8 @@ services:
     environment:
       - KAFKA_SERVER_ENDPOINT=kafka:9092
     depends_on:
-      - kafka
+      kafka:
+        condition: service_started
     volumes:
       - ./f1-service/backend/api:/app/api
     networks:
@@ -84,9 +85,9 @@ services:
       - "8001:8001"
     environment:
       - KAFKA_SERVER_ENDPOINT=kafka:9092
-      - DATABASE_URL=postgresql://platert:password1@postgres:5432/stats_db
+      - DATABASE_URL=postgresql://platert:password1@postgres-stats:5432/stats_db
     depends_on:
-      postgres:
+      postgres-stats:
         condition: service_healthy
       kafka:
         condition: service_started
@@ -115,4 +116,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  postgres_stats_data:
