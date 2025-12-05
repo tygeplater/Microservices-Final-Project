@@ -1,3 +1,6 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
 export function Header() {
     return (
       <header className="mx-auto backdrop-blur-xl bg-gray-900/85 px-4 py-3 mb-10 shadow-2xl">
@@ -7,26 +10,26 @@ export function Header() {
                 <p className="text-red-100 mt-2">Formula 1 Race Calendar</p>
             </div>
             <div className="flex items-center justify-evenly gap-4 px-4 flex-1">
-                <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition">
-                    <a href="/">
+                <Link to="/">
+                    <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition block w-full">
                         Home
-                    </a>
-                </button>
-                <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition">
-                    <a href="/schedule">
+                    </button>
+                </Link>
+                <Link to="/schedule">
+                    <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition block w-full">
                         Schedule
-                    </a>
-                </button>
-                <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition">
-                    <a href="/standings">
+                    </button>
+                </Link>
+                <Link to="/standings">
+                    <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition block w-full">
                         Standings
-                    </a>
-                </button>
-                <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition">
-                    <a href="/sessions">
+                    </button>
+                </Link>
+                <Link to="/sessions">
+                    <button className="bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 py-2 rounded transition block w-full">
                         Sessions
-                    </a>
-                </button>
+                    </button>
+                </Link>
             </div>
         </div>
       </header>
