@@ -1,4 +1,15 @@
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 export function Header() {
+    const { user, logout, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
       <header className="mx-auto backdrop-blur-xl bg-gray-900/85 px-4 py-3 mb-10 shadow-2xl">
         <div className="flex flex-row">
@@ -27,6 +38,20 @@ export function Header() {
                         Sessions
                     </a>
                 </button>
+                {isAuthenticated && user && (
+                    <div className="flex items-center gap-4">
+                        <span className="text-white">Welcome, {user.username}</span>
+                        {user.role === 'admin' && (
+                            <span className="bg-purple-600 text-white px-2 py-1 rounded text-xs">ADMIN</span>
+                        )}
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
       </header>

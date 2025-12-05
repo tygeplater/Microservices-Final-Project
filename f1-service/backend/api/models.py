@@ -1,5 +1,10 @@
 from pydantic import BaseModel 
 from typing import Any, List
+from enum import Enum
+
+class Role(Enum):
+    ADMIN = "admin"
+    USER = "user"
 
 # Models
 class F1Data(BaseModel):
@@ -23,3 +28,27 @@ class StandingsResponse(BaseModel):
 class SessionResponse(BaseModel):
     status: int
     session: Any
+
+class User(BaseModel):
+    id: int
+    username: str
+    hashed_password: str
+    role: Role
+
+# Pydantic models for auth
+class UserRegister(BaseModel):
+    username: str
+    password: str
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    role: Role

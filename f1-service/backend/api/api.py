@@ -1,7 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from .models import ScheduleResponse, SessionResponse, StandingsResponse
+from .models import ScheduleResponse, SessionResponse, StandingsResponse, Role, UserRegister, UserLogin, Token, UserResponse
+from .auth import get_current_user, require_role, get_password_hash, verify_password, create_access_token
+from .database import get_db, init_db, User
+from sqlalchemy.orm import Session
 import uvicorn
 import fastf1
 import json
@@ -13,6 +16,23 @@ from .kafka_producer import kafka_producer
 async def lifespan(app: FastAPI):
     # Startup
     print("F1 Service starting up...")
+    init_db()
+    # Create default admin user if it doesn't exist
+    db_gen = get_db()
+    db = next(db_gen)
+    try:
+        admin_user = db.query(User).filter(User.username == "admin").first()
+        if not admin_user:
+            admin_user = User(
+                username="admin",
+                hashed_password=get_password_hash("admin123"),
+                role=Role.ADMIN
+            )
+            db.add(admin_user)
+            db.commit()
+            print("Default admin user created: username=admin, password=admin123")
+    finally:
+        db.close()
     kafka_producer.__init__()
 
     yield
@@ -25,7 +45,7 @@ app = FastAPI(title="F1 Service API", version="0.1", lifespan=lifespan)
 # Configure CORS - Must be added BEFORE other middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,9 +55,49 @@ app.middleware("http")(usage_tracking_middleware)
 app.middleware("https")(usage_tracking_middleware)
 
 # Routes
+@app.post("/api/auth/register", response_model=UserResponse)
+async def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    """Register a new user"""
+    # Check if user already exists
+    existing_user = db.query(User).filter(User.username == user_data.username).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already in use")
+    
+    # Create new user
+    hashed_password = get_password_hash(user_data.password)
+    new_user = User(
+        username=user_data.username,
+        hashed_password=hashed_password,
+        role=Role.USER
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return UserResponse(
+        id=new_user.id,
+        username=new_user.username,
+        role=new_user.role
+    )
+
+@app.post("/api/auth/login", response_model=Token)
+async def login(user_data: UserLogin, db: Session = Depends(get_db)):
+    """Login and get JWT token"""
+    user = db.query(User).filter(User.username == user_data.username).first()
+    if not user or not verify_password(user_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    
+    access_token = create_access_token(
+        data={"sub": user.username, "role": user.role.value}
+    )
+    return {"access_token": access_token}
 
 @app.get("/api/session-info")
-async def get_session_info(year: int, round: int | str, sessionCd: str):
+async def get_session_info(
+    year: int,
+    round: int | str,
+    sessionCd: str,
+    current_user: User = Depends(require_role([Role.USER, Role.ADMIN]))
+):
 
     try:
         start = time.perf_counter()
@@ -80,7 +140,11 @@ async def get_session_info(year: int, round: int | str, sessionCd: str):
     
 
 @app.get("/api/weekend-results")
-async def get_weekend_results(year: int, round: int | str):
+async def get_weekend_results(
+    year: int,
+    round: int | str,
+    current_user: User = Depends(require_role([Role.USER, Role.ADMIN]))
+):
     """Get F1 weekend results for a specific year and round"""
     try:
         start = time.perf_counter()
@@ -118,7 +182,10 @@ async def get_weekend_results(year: int, round: int | str):
 
 
 @app.get("/api/schedule")
-async def get_schedule(year: int):
+async def get_schedule(
+    year: int,
+    current_user: User = Depends(require_role([Role.USER, Role.ADMIN]))
+):
     """Get F1 schedule for a specific year"""
     try:
         start = time.perf_counter()
