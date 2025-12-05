@@ -23,9 +23,9 @@ services:
     networks:
       - microservices-network
 
-  postgres:
+  postgres-stats:
     image: postgres:15-alpine
-    container_name: postgres
+    container_name: postgres-stats
     environment:
       POSTGRES_USER: platert
       POSTGRES_PASSWORD: password1
@@ -33,9 +33,28 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_stats_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U platert -d stats_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservices-network
+
+  postgres-f1:
+    image: postgres:15-alpine
+    container_name: postgres-f1
+    environment:
+      POSTGRES_USER: platert
+      POSTGRES_PASSWORD: password1
+      POSTGRES_DB: f1_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_f1_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U platert -d f1_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -52,8 +71,15 @@ services:
       - "8000:8000"
     environment:
       - KAFKA_SERVER_ENDPOINT=kafka:9092
+      - DATABASE_URL=postgresql://platert:password1@postgres-f1:5432/f1_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS:-24}
     depends_on:
-      - kafka
+      postgres-f1:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     volumes:
       - ./f1-service/backend/api:/app/api
     networks:
@@ -84,9 +110,12 @@ services:
       - "8001:8001"
     environment:
       - KAFKA_SERVER_ENDPOINT=kafka:9092
-      - DATABASE_URL=postgresql://platert:password1@postgres:5432/stats_db
+      - DATABASE_URL=postgresql://platert:password1@postgres-stats:5432/stats_db
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS:-24}
     depends_on:
-      postgres:
+      postgres-stats:
         condition: service_healthy
       kafka:
         condition: service_started
@@ -115,4 +144,5 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  postgres_stats_data:
+  postgres_f1_data:
