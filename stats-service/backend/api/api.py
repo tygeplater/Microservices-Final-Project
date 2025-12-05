@@ -1,17 +1,14 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from .models import Statistics, StatsResponse, Role, UserRegister, UserLogin, Token, UserResponse
+from .models import Role, UserRegister, UserLogin, Token, UserResponse
 from .auth import get_current_user, require_role, get_password_hash, verify_password, create_access_token
 import uvicorn
 import os
 from .kafka_consumer import kafka_consumer
 from .database import get_db, APIUsage, init_db, User
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
 from sqlalchemy import func
-from typing import Optional
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

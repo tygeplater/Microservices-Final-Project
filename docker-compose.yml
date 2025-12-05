@@ -27,15 +27,15 @@ services:
     image: postgres:15-alpine
     container_name: postgres-stats
     environment:
-      POSTGRES_USER: platert
-      POSTGRES_PASSWORD: password1
-      POSTGRES_DB: stats_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - postgres_stats_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U platert -d stats_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -51,7 +51,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - KAFKA_SERVER_ENDPOINT=kafka:9092
+      - KAFKA_SERVER_ENDPOINT=${KAFKA_SERVER_ENDPOINT}
     depends_on:
       kafka:
         condition: service_started
@@ -84,8 +84,13 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - KAFKA_SERVER_ENDPOINT=kafka:9092
-      - DATABASE_URL=postgresql://platert:password1@postgres-stats:5432/stats_db
+      - KAFKA_SERVER_ENDPOINT=${KAFKA_SERVER_ENDPOINT}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres-stats:5432/${POSTGRES_DB}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS}
     depends_on:
       postgres-stats:
         condition: service_healthy
