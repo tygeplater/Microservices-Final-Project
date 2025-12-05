@@ -42,13 +42,14 @@ services:
     networks:
       - microservices-network
 
-  # F1 Service Backend
-  f1-backend:
+  # F1 Service
+  f1-service:
     build:
-      context: ./f1-service/backend
+      context: ./f1-service
       dockerfile: Dockerfile
-    container_name: f1-backend
+    container_name: f1-service
     ports:
+      - "3000:80"
       - "8000:8000"
     environment:
       - KAFKA_SERVER_ENDPOINT=${KAFKA_SERVER_ENDPOINT}
@@ -56,32 +57,19 @@ services:
       kafka:
         condition: service_started
     volumes:
-      - ./f1-service/backend/api:/app/api
+      - ./f1-service/backend/api:/app/backend/api
     networks:
       - microservices-network
     restart: unless-stopped
 
-  # F1 Service Frontend
-  f1-frontend:
+  # Stats Service
+  stats-service:
     build:
-      context: ./f1-service/frontend
+      context: ./stats-service
       dockerfile: Dockerfile
-    container_name: f1-frontend
+    container_name: stats-service
     ports:
-      - "3000:80"
-    depends_on:
-      - f1-backend
-    networks:
-      - microservices-network
-    restart: unless-stopped
-
-  # Stats Service Backend
-  stats-backend:
-    build:
-      context: ./stats-service/backend
-      dockerfile: Dockerfile
-    container_name: stats-backend
-    ports:
+      - "3001:80"
       - "8001:8001"
     environment:
       - KAFKA_SERVER_ENDPOINT=${KAFKA_SERVER_ENDPOINT}
@@ -97,21 +85,7 @@ services:
       kafka:
         condition: service_started
     volumes:
-      - ./stats-service/backend/api:/app/api
-    networks:
-      - microservices-network
-    restart: unless-stopped
-
-  # Stats Service Frontend
-  stats-frontend:
-    build:
-      context: ./stats-service/frontend
-      dockerfile: Dockerfile
-    container_name: stats-frontend
-    ports:
-      - "3001:80"
-    depends_on:
-      - stats-backend
+      - ./stats-service/backend/api:/app/backend/api
     networks:
       - microservices-network
     restart: unless-stopped
