@@ -97,19 +97,19 @@ services:
       - microservices-network
     restart: unless-stopped
 
-  # # Stats Service Frontend
-  # stats-frontend:
-  #   build:
-  #     context: ./stats-service/frontend
-  #     dockerfile: Dockerfile
-  #   container_name: stats-frontend
-  #   ports:
-  #     - "3001:80"
-  #   depends_on:
-  #     - stats-backend
-  #   networks:
-  #     - microservices-network
-  #   restart: unless-stopped
+  # Stats Service Frontend
+  stats-frontend:
+    build:
+      context: ./stats-service/frontend
+      dockerfile: Dockerfile
+    container_name: stats-frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - stats-backend
+    networks:
+      - microservices-network
+    restart: unless-stopped
 
 networks:
   microservices-network:

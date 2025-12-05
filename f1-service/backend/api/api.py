@@ -26,7 +26,7 @@ app = FastAPI(title="F1 Service API", version="0.1", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=True,
+    allow_credentials=False,  # Set to False when using "*" origins
     allow_methods=["*"],
     allow_headers=["*"],
 )

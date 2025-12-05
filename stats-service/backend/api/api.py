@@ -1,21 +1,38 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from .models import Statistics, StatsResponse
+from .models import Statistics, StatsResponse, Role, UserRegister, UserLogin, Token, UserResponse
+from .auth import get_current_user, require_role, get_password_hash, verify_password, create_access_token
 import uvicorn
 from .kafka_consumer import kafka_consumer
-from .database import get_db, APIUsage, init_db
+from .database import get_db, APIUsage, init_db, User
 from sqlalchemy.orm import Session
-from fastapi import Depends
 from datetime import datetime, timedelta
 from sqlalchemy import func
+from typing import Optional
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     print("Stats Service starting up...")
     init_db()
+    # Create default admin user if it doesn't exist
+    db_gen = get_db()
+    db = next(db_gen)
+    try:
+        admin_user = db.query(User).filter(User.username == "admin").first()
+        if not admin_user:
+            admin_user = User(
+                username="admin",
+                hashed_password=get_password_hash("admin123"),
+                role=Role.ADMIN
+            )
+            db.add(admin_user)
+            db.commit()
+            print("Default admin user created: username=admin, password=admin123")
+    finally:
+        db.close()
     kafka_consumer.start()
     yield
     # Shutdown
@@ -24,57 +41,71 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Stats Service API", version="1.0.0", lifespan=lifespan)
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001", "http://127.0.0.1:3001"],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=False,  # Set to False when using "*" origins
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Sample data
-sample_stats = [
-    Statistics(metric="Average Speed", value=215.5, unit="km/h"),
-    Statistics(metric="Top Speed", value=352.0, unit="km/h"),
-    Statistics(metric="Lap Time", value=78.5, unit="seconds"),
-    Statistics(metric="Pit Stop Time", value=2.1, unit="seconds"),
-]
 
 # Routes
 @app.get("/")
 async def root():
     return {"message": "Stats Service API", "status": "running"}
 
-
-@app.get("/api/stats", response_model=StatsResponse)
-async def get_stats():
-    """Get statistics data"""
-    return StatsResponse(
-        message="Statistics retrieved successfully",
-        stats=sample_stats
+# Authentication endpoints
+@app.post("/api/auth/register", response_model=UserResponse)
+async def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    """Register a new user"""
+    # Check if user already exists
+    existing_user = db.query(User).filter(User.username == user_data.username).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
+    
+    # Create new user
+    hashed_password = get_password_hash(user_data.password)
+    new_user = User(
+        username=user_data.username,
+        hashed_password=hashed_password,
+        role=Role.ADMIN
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return UserResponse(
+        id=new_user.id,
+        username=new_user.username,
+        role=new_user.role
     )
 
+@app.post("/api/auth/login", response_model=Token)
+async def login(user_data: UserLogin, db: Session = Depends(get_db)):
+    """Login and get JWT token"""
+    user = db.query(User).filter(User.username == user_data.username).first()
+    if not user or not verify_password(user_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    
+    access_token = create_access_token(
+        data={"sub": user.username, "role": user.role.value}
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/api/stats/{metric}")
-async def get_stat_by_metric(metric: str):
-    """Get specific statistic by metric name"""
-    for stat in sample_stats:
-        if stat.metric.lower().replace(" ", "-") == metric.lower():
-            return stat
-    raise HTTPException(status_code=404, detail="Metric not found")
+@app.get("/api/auth/me", response_model=UserResponse)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get current user information"""
+    return UserResponse(
+        id=current_user.id,
+        username=current_user.username,
+        role=current_user.role
+    )
 
-
-@app.get("/api/stats/summary")
-async def get_stats_summary():
-    """Get summary of all statistics"""
-    return {
-        "total_metrics": len(sample_stats),
-        "metrics": [stat.metric for stat in sample_stats]
-    }
-
+# Stats Endpoints
 @app.get("/api/usage/summary")
-async def get_usage_summary(db: Session = Depends(get_db)):
+async def get_usage_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role([Role.ADMIN]))
+):
     """Get summary of API usage"""
     total_requests = db.query(func.count(APIUsage.id)).scalar()
     avg_response_time = db.query(func.avg(APIUsage.response_time_ms)).scalar()
@@ -85,7 +116,10 @@ async def get_usage_summary(db: Session = Depends(get_db)):
     }
 
 @app.get("/api/usage/by-endpoint")
-async def get_usage_by_endpoint(db: Session = Depends(get_db)):
+async def get_usage_by_endpoint(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role([Role.ADMIN]))
+):
     """Get usage statistics grouped by endpoint"""
     results = db.query(
         APIUsage.endpoint,
@@ -103,7 +137,11 @@ async def get_usage_by_endpoint(db: Session = Depends(get_db)):
     ]
 
 @app.get("/api/usage/recent")
-async def get_recent_usage(limit: int = 100, db: Session = Depends(get_db)):
+async def get_recent_usage(
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role([Role.ADMIN]))
+):
     """Get recent API usage events"""
     usages = db.query(APIUsage).order_by(APIUsage.timestamp.desc()).limit(limit).all()
     
