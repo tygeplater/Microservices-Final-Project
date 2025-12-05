@@ -46,6 +46,12 @@ export function Standings() {
       }> = new Map();
 
       for (const event of completedEvents) {
+
+        // Skip Pre-Season Testing
+        if (event.RoundNumber === 0) {
+          continue;
+        }
+        
         try {
           const results: DriverResult[] = await fetchWeekendResults(year, event.RoundNumber);
           
@@ -68,7 +74,7 @@ export function Standings() {
             driverData.cumulativePoints += result.Points;
           });
 
-          // Calculate positions after this round - only for drivers who have raced at least once
+          // Calculate positions after this round
           const sortedDrivers = Array.from(driverPointsMap.entries())
             .filter(([driverId, data]) => data.positions.length > 0 || driversInThisRound.has(driverId))
             .sort((a, b) => b[1].cumulativePoints - a[1].cumulativePoints);
