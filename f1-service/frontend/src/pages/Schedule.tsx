@@ -18,9 +18,7 @@ export function Schedule() {
         setError(null);
         
         try {
-            console.log('here');
             const schedule = await fetchSchedule(selectedYear);
-            console.log('Response received:', schedule);
             setSchedule(schedule);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');

@@ -22,3 +22,13 @@ export async function fetchWeekendResults(year: number, round: number | string):
         return data.standings;
     }
 }
+
+export async function fetchSessionInfo(year: number, round: string, sessionCd: string): Promise<any> {
+    const response = await fetch(`http://localhost:8000/api/session-info?year=${year}&round=${round}&sessionCd=${sessionCd}`);
+    if (!response.ok) {
+        throw new Error(`Error fetching session info for event ${round}, year ${year}: ${response.statusText}`);
+    } else {
+        const data = await response.json();
+        return data.session;
+    }
+}

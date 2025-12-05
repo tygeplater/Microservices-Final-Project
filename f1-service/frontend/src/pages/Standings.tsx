@@ -94,7 +94,6 @@ export function Standings() {
       // Convert to array format
       const standingsArray: DriverStanding[] = Array.from(driverPointsMap.entries())
         .filter(([driverId, data]) => {
-          console.log(`Driver: ${driverId}, Positions: ${data.positions.length}, Cumulative Points: ${data.cumulativePoints}`);
           return data.positions.length > 0;
         })
         .map(([driverId, data], index) => {
