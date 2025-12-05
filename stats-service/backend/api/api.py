@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from .models import Statistics, StatsResponse, Role, UserRegister, UserLogin, Token, UserResponse
 from .auth import get_current_user, require_role, get_password_hash, verify_password, create_access_token
 import uvicorn
+import os
 from .kafka_consumer import kafka_consumer
 from .database import get_db, APIUsage, init_db, User
 from sqlalchemy.orm import Session
@@ -17,24 +18,35 @@ async def lifespan(app: FastAPI):
     # Startup
     print("Stats Service starting up...")
     init_db()
-    # Create default admin user if it doesn't exist
-    db_gen = get_db()
-    db = next(db_gen)
-    try:
-        admin_user = db.query(User).filter(User.username == "admin").first()
-        if not admin_user:
-            admin_user = User(
-                username="admin",
-                hashed_password=get_password_hash("admin123"),
-                role=Role.ADMIN
-            )
-            db.add(admin_user)
-            db.commit()
-            print("Default admin user created: username=admin, password=admin123")
-    finally:
-        db.close()
+
+    # Create admin user from environment variables if configured
+    admin_username = os.getenv("ADMIN_USERNAME")
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    
+    if admin_username and admin_password:
+        db_gen = get_db()
+        db = next(db_gen)
+        try:
+            admin_user = db.query(User).filter(User.username == admin_username).first()
+            if not admin_user:
+                admin_user = User(
+                    username=admin_username,
+                    hashed_password=get_password_hash(admin_password),
+                    role=Role.ADMIN
+                )
+                db.add(admin_user)
+                db.commit()
+                print(f"Admin user created from environment variables")
+            else:
+                print(f"Admin user already exists")
+        finally:
+            db.close()
+    else:
+        print("Skipping admin user creation.")
+    
     kafka_consumer.start()
     yield
+
     # Shutdown
     print("Stats Service shutting down...")
     kafka_consumer.stop()
@@ -43,8 +55,8 @@ app = FastAPI(title="Stats Service API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=False,  # Set to False when using "*" origins
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"],
+    allow_credentials=True, 
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -63,12 +75,12 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     
-    # Create new user
+    # Create new user (all registered users are regular users by default)
     hashed_password = get_password_hash(user_data.password)
     new_user = User(
         username=user_data.username,
         hashed_password=hashed_password,
-        role=Role.ADMIN
+        role=Role.USER
     )
     db.add(new_user)
     db.commit()

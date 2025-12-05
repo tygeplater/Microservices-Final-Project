@@ -2,6 +2,7 @@ from kafka import KafkaProducer
 import json
 import logging
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import Optional
 import os
 import time
@@ -71,7 +72,7 @@ class F1KafkaProducer:
             "method": method,
             "status_code": status_code,
             "response_time_ms": response_time,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(ZoneInfo("America/Chicago")).isoformat(),
             "user_agent": user_agent,
             "query_params": query_params,
         }
