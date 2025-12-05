@@ -22,11 +22,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="F1 Service API", version="0.1", lifespan=lifespan)
 
-# Configure CORS - Must be added BEFORE other middleware
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=False,  # Set to False when using "*" origins
+    allow_origins=["http://localhost:3001", "http://127.0.0.1:3001"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

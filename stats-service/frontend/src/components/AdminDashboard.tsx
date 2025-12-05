@@ -1,25 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { authService } from '../auth/auth';
-
-interface UsageSummary {
-  total_requests: number;
-  average_response_time_ms: number;
-}
-
-interface EndpointUsage {
-  endpoint: string;
-  request_count: number;
-  avg_response_time_ms: number;
-}
-
-interface RecentUsage {
-  service: string;
-  endpoint: string;
-  method: string;
-  status_code: number;
-  response_time_ms: number;
-  timestamp: string;
-}
+import { getUsageData } from '../api/api.hub';
+import { UsageSummary, EndpointUsage, RecentUsage } from '../models/models';
 
 export const AdminDashboard: React.FC = () => {
   const [summary, setSummary] = useState<UsageSummary | null>(null);
@@ -37,30 +18,7 @@ export const AdminDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const headers = {
-        ...authService.getAuthHeader(),
-        'Content-Type': 'application/json',
-      };
-
-      // Fetch all usage data in parallel
-      const [summaryRes, endpointRes, recentRes] = await Promise.all([
-        fetch('http://localhost:8001/api/usage/summary', { headers }),
-        fetch('http://localhost:8001/api/usage/by-endpoint', { headers }),
-        fetch('http://localhost:8001/api/usage/recent?limit=50', { headers }),
-      ]);
-
-      if (!summaryRes.ok || !endpointRes.ok || !recentRes.ok) {
-        if (summaryRes.status === 403 || endpointRes.status === 403 || recentRes.status === 403) {
-          throw new Error('Access denied. Admin privileges required.');
-        }
-        throw new Error('Failed to fetch usage data');
-      }
-
-      const [summaryData, endpointData, recentData] = await Promise.all([
-        summaryRes.json(),
-        endpointRes.json(),
-        recentRes.json(),
-      ]);
+      const { summaryData, endpointData, recentData } = await getUsageData();
 
       setSummary(summaryData);
       setEndpointUsage(endpointData);
