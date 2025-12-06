@@ -4,6 +4,7 @@ import { Login } from './components/Login';
 import { AdminDashboard } from './components/AdminDashboard';
 import { Header } from './components/header';
 import './stats-service.css';
+import { BrowserRouter } from 'react-router-dom';
 
 const StatsContent: React.FC = () => {
   const [data, setData] = useState(null);
@@ -37,9 +38,11 @@ const StatsContent: React.FC = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <StatsContent />
-    </AuthProvider>
+    <BrowserRouter basename="/stats-service">
+      <AuthProvider>
+        <StatsContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
