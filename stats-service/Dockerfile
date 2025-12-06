@@ -1,4 +1,5 @@
 # Stage 1: Build frontend
+# CACHE_BUST: 2025-12-06-fix-frontend-build
 FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app/frontend
@@ -9,8 +10,11 @@ RUN npm ci
 COPY frontend/ .
 RUN npm run build
 
-# Verify that the build produced files
-RUN ls -la /app/frontend/dist && \
+# Verify that the build produced files with detailed output
+RUN echo "=== Checking build output ===" && \
+    ls -laR /app/frontend/dist && \
+    echo "=== index.html content ===" && \
+    cat /app/frontend/dist/index.html && \
     test -f /app/frontend/dist/index.html || \
     (echo "ERROR: Frontend build did not produce index.html!" && exit 1)
 
@@ -49,4 +53,4 @@ EXPOSE 80 8001
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/backend
 
-CMD bash -c "cd /app/backend && uvicorn api.api:app --host 0.0.0.0 --port 8001 & nginx -g 'daemon off;'"
+CMD bash -c "nginx -t && cd /app/backend && uvicorn api.api:app --host 0.0.0.0 --port 8001 & nginx -g 'daemon off;'"
