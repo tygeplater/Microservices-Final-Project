@@ -9,6 +9,11 @@ RUN npm ci
 COPY frontend/ .
 RUN npm run build
 
+# Verify that the build produced files
+RUN ls -la /app/frontend/dist && \
+    test -f /app/frontend/dist/index.html || \
+    (echo "ERROR: Frontend build did not produce index.html!" && exit 1)
+
 # Stage 2: Final image with Python backend and nginx
 FROM python:3.11-slim
 
@@ -31,6 +36,11 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY backend/api/ ./backend/api/
 
 COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
+
+# Verify frontend files were copied
+RUN ls -la /usr/share/nginx/html && \
+    test -f /usr/share/nginx/html/index.html || \
+    (echo "ERROR: Frontend files not found in /usr/share/nginx/html!" && exit 1)
 
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
