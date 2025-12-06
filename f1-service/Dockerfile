@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-# CACHE_BUST: 2025-12-06-fix-frontend-build
+# CACHE_BUST: 2025-12-06-fix-nginx-config
 FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app/frontend
@@ -9,14 +9,6 @@ RUN npm ci
 
 COPY frontend/ .
 RUN npm run build
-
-# Verify that the build produced files with detailed output
-RUN echo "=== Checking build output ===" && \
-    ls -laR /app/frontend/dist && \
-    echo "=== index.html content ===" && \
-    cat /app/frontend/dist/index.html && \
-    test -f /app/frontend/dist/index.html || \
-    (echo "ERROR: Frontend build did not produce index.html!" && exit 1)
 
 # Stage 2: Final image with Python backend and nginx
 FROM python:3.11-slim
@@ -28,11 +20,6 @@ RUN apt-get update && apt-get install -y \
     gcc \
     bash \
     && rm -rf /var/lib/apt/lists/*
-
-# Remove ALL default nginx configs
-RUN rm -f /etc/nginx/sites-enabled/default \
-    && rm -f /etc/nginx/conf.d/default.conf \
-    && rm -rf /etc/nginx/sites-enabled/*
 
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
@@ -46,7 +33,17 @@ RUN ls -la /usr/share/nginx/html && \
     test -f /usr/share/nginx/html/index.html || \
     (echo "ERROR: Frontend files not found in /usr/share/nginx/html!" && exit 1)
 
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Remove ALL default nginx configs and setup our config
+RUN rm -f /etc/nginx/sites-enabled/default \
+    && rm -f /etc/nginx/sites-available/default \
+    && rm -f /etc/nginx/conf.d/*.conf \
+    && rm -rf /var/www/html
+
+COPY frontend/nginx.conf /etc/nginx/sites-available/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Verify nginx config
+RUN nginx -t
 
 EXPOSE 80 8000
 
