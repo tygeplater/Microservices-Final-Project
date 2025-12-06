@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y \
     bash \
     && rm -rf /var/lib/apt/lists/*
 
+# Remove default nginx config
+RUN rm -f /etc/nginx/sites-enabled/default
+
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
