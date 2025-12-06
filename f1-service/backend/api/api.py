@@ -155,17 +155,7 @@ async def get_schedule(year: int):
 
 @app.get("/health")
 async def health_check():
-
-    kafka_producer.send_usage_event(
-        endpoint="/api/health",
-        method="GET",
-        status_code=200,
-        response_time=0,
-        user_agent=None,
-        query_params=None
-    )
-
-    return {"status": 200, "message": "f1-service is healthy"}
+    return {"status": "healthy"}
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)

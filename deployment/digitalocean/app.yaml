@@ -1,0 +1,64 @@
+name: microservices-f1-stats
+region: nyc
+
+services:
+  - name: f1-service
+    github:
+      repo: tygeplater/Microservices-Final-Project
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: f1-service/Dockerfile
+    source_dir: f1-service
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    health_check:
+      http_path: /health
+    envs:
+      - key: KAFKA_SERVER_ENDPOINT
+        value: ${KAFKA_SERVER_ENDPOINT}
+        type: SECRET
+      - key: KAFKA_API_KEY
+        value: ${KAFKA_API_KEY}
+        type: SECRET
+      - key: KAFKA_API_SECRET
+        value: ${KAFKA_API_SECRET}
+        type: SECRET
+
+  - name: stats-service
+    github:
+      repo: tygeplater/Microservices-Final-Project
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: stats-service/Dockerfile
+    source_dir: stats-service
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    health_check:
+      http_path: /health
+    envs:
+      - key: DATABASE_URL
+        value: ${DATABASE_URL}
+        type: SECRET
+      - key: KAFKA_SERVER_ENDPOINT
+        value: ${KAFKA_SERVER_ENDPOINT}
+        type: SECRET
+      - key: KAFKA_API_KEY
+        value: ${KAFKA_API_KEY}
+        type: SECRET
+      - key: KAFKA_API_SECRET
+        value: ${KAFKA_API_SECRET}
+        type: SECRET
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: ${ADMIN_PASSWORD}
+        type: SECRET
+      - key: JWT_SECRET_KEY
+        value: ${JWT_SECRET_KEY}
+        type: SECRET
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRATION_HOURS
+        value: "24"

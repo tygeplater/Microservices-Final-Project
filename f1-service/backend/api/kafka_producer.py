@@ -13,13 +13,13 @@ logger = logging.getLogger(__name__)
 class F1KafkaProducer:
     def __init__(self, retries: int = 5, delay_seconds: float = 3.0) -> None:
         self.kafka_server_endpoint = os.getenv('KAFKA_SERVER_ENDPOINT', 'kafka:9092')
+        self.kafka_api_key = os.getenv('KAFKA_API_KEY')
+        self.kafka_api_secret = os.getenv('KAFKA_API_SECRET')
         self.retries = retries
         self.delay_seconds = delay_seconds
 
-        # Always define the attribute so we never get AttributeError
         self.producer: Optional[KafkaProducer] = None
 
-        # Try to connect on startup (but don't crash the app if it fails)
         self._connect_with_retry()
 
     def _connect_with_retry(self) -> None:
@@ -30,10 +30,22 @@ class F1KafkaProducer:
                     f"Connecting to Kafka at {self.kafka_server_endpoint} "
                     f"(attempt {attempt}/{self.retries})"
                 )
-                self.producer = KafkaProducer(
-                    bootstrap_servers=[self.kafka_server_endpoint],
-                    value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-                )
+                
+                producer_config = {
+                    'bootstrap_servers': [self.kafka_server_endpoint],
+                    'value_serializer': lambda v: json.dumps(v).encode('utf-8'),
+                }
+                
+                if self.kafka_api_key and self.kafka_api_secret:
+                    producer_config.update({
+                        'security_protocol': 'SASL_SSL',
+                        'sasl_mechanism': 'PLAIN',
+                        'sasl_plain_username': self.kafka_api_key,
+                        'sasl_plain_password': self.kafka_api_secret,
+                    })
+                    logger.info("Using SASL authentication for Kafka")
+                
+                self.producer = KafkaProducer(**producer_config)
                 logger.info(f"Kafka producer connected to {self.kafka_server_endpoint}")
                 return
             except Exception as e:
@@ -56,8 +68,7 @@ class F1KafkaProducer:
         query_params: Optional[dict] = None,
     ) -> None:
         """Send a usage event to Kafka."""
-        # If we don't have a producer (e.g., Kafka was down at startup),
-        # try once more to connect before giving up on this send.
+
         if self.producer is None:
             logger.info("Kafka producer not initialized; attempting to reconnect...")
             self._connect_with_retry()

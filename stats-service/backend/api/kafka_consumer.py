@@ -11,18 +11,30 @@ logger = logging.getLogger(__name__)
 class StatsKafkaConsumer:
     def __init__(self):
         kafka_server_endpoint = os.getenv('KAFKA_SERVER_ENDPOINT', 'localhost:9092')
+        kafka_api_key = os.getenv('KAFKA_API_KEY')
+        kafka_api_secret = os.getenv('KAFKA_API_SECRET')
         self.running = False
         self.consumer_thread = None
         
         try:
-            self.consumer = KafkaConsumer(
-                'api-usage',
-                bootstrap_servers=[kafka_server_endpoint],
-                value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-                group_id='stats-service-group',
-                auto_offset_reset='earliest',
-                enable_auto_commit=True
-            )
+            consumer_config = {
+                'bootstrap_servers': [kafka_server_endpoint],
+                'value_deserializer': lambda m: json.loads(m.decode('utf-8')),
+                'group_id': 'stats-service-group',
+                'auto_offset_reset': 'earliest',
+                'enable_auto_commit': True,
+            }
+            
+            if kafka_api_key and kafka_api_secret:
+                consumer_config.update({
+                    'security_protocol': 'SASL_SSL',
+                    'sasl_mechanism': 'PLAIN',
+                    'sasl_plain_username': kafka_api_key,
+                    'sasl_plain_password': kafka_api_secret,
+                })
+                logger.info("Using SASL authentication for Kafka")
+            
+            self.consumer = KafkaConsumer('api-usage', **consumer_config)
             
             logger.info(f"Kafka consumer connected to {kafka_server_endpoint}")
         except Exception as e:

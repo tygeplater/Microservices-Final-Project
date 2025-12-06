@@ -168,7 +168,7 @@ async def get_recent_usage(
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "stats-service"}
+    return {"status": "healthy"}
 
 
 if __name__ == "__main__":
