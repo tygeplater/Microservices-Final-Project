@@ -1,5 +1,5 @@
 // Use relative path - nginx will proxy to backend
-const API_BASE_URL = '/api/auth';
+const API_BASE_URL = 'api/auth';
 
 export interface User {
   id: number;
