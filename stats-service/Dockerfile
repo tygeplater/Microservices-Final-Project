@@ -53,4 +53,4 @@ EXPOSE 80 8001
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/backend
 
-CMD bash -c "nginx -t && cd /app/backend && uvicorn api.api:app --host 0.0.0.0 --port 8001 & nginx -g 'daemon off;'"
+CMD bash -c "cd /app/backend && uvicorn api.api:app --host 0.0.0.0 --port 8001 & nginx -g 'daemon off;'"
