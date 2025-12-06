@@ -153,7 +153,7 @@ async def get_schedule(year: int):
 
         raise HTTPException(status_code=500, detail=f"Error retrieving schedule: {e}")
 
-@app.get("/health")
+@app.get("/api/health")
 async def health_check():
     return {"status": "healthy"}
 

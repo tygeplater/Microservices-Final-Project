@@ -166,7 +166,7 @@ async def get_recent_usage(
         for u in usages
     ]
 
-@app.get("/health")
+@app.get("api/health")
 async def health_check():
     return {"status": "healthy"}
 
