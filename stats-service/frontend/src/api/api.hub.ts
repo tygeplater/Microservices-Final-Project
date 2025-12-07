@@ -1,8 +1,5 @@
 import { authService } from '../auth/auth';
 
-// Get base path from environment variable, default to empty string for local dev
-const basePath = import.meta.env.VITE_BASE_PATH || '';
-
 export async function getUsageData(){
     try {
       const headers = {
@@ -12,9 +9,9 @@ export async function getUsageData(){
 
       // Fetch all usage data in parallel
       const [summaryRes, endpointRes, recentRes] = await Promise.all([
-        fetch(`${basePath}/api/usage/summary`, { headers }),
-        fetch(`${basePath}/api/usage/by-endpoint`, { headers }),
-        fetch(`${basePath}/api/usage/recent?limit=50`, { headers }),
+        fetch('/stats-service/api/usage/summary', { headers }),
+        fetch('/stats-service/api/usage/by-endpoint', { headers }),
+        fetch('/stats-service/api/usage/recent?limit=50', { headers }),
       ]);
 
       if (!summaryRes.ok || !endpointRes.ok || !recentRes.ok) {

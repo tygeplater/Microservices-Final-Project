@@ -6,9 +6,6 @@ import { Header } from './components/header';
 import './stats-service.css';
 import { BrowserRouter } from 'react-router-dom';
 
-// Get base path from environment variable, default to empty string for local dev
-const basePath = import.meta.env.VITE_BASE_PATH || '';
-
 const StatsContent: React.FC = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +38,7 @@ const StatsContent: React.FC = () => {
 
 function App() {
   return (
-    <BrowserRouter basename={basePath}>
+    <BrowserRouter basename="/stats-service">
       <AuthProvider>
         <StatsContent />
       </AuthProvider>
