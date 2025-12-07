@@ -51,7 +51,8 @@ async def get_session_info(year: int, round: int | str, sessionCd: str):
 
         end = time.perf_counter()
 
-        response_time = (end - start) * 1000  # In milliseconds
+        # Multiply by 1000 to convert to milliseconds
+        response_time = (end - start) * 1000
 
         kafka_producer.send_usage_event(
             endpoint="/api/session-info",
@@ -89,7 +90,9 @@ async def get_weekend_results(year: int, round: int | str):
         weekend_data = json.loads(weekend_json)
 
         end = time.perf_counter()
-        response_time = (end - start) * 1000  # In milliseconds
+
+        # Multiply by 1000 to convert to milliseconds
+        response_time = (end - start) * 1000  
 
         kafka_producer.send_usage_event(
             endpoint="/api/weekend-results",
@@ -127,7 +130,9 @@ async def get_schedule(year: int):
         schedule_data = json.loads(schedule_json)
 
         end = time.perf_counter()
-        response_time = (end - start) * 1000  # In milliseconds
+
+        # Multiply by 1000 to convert to milliseconds
+        response_time = (end - start) * 1000
 
         kafka_producer.send_usage_event(
             endpoint="/api/schedule",

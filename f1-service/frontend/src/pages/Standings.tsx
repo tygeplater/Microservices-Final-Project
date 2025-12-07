@@ -26,10 +26,7 @@ export function Standings() {
     setLoading(true);
     setError(null);
     try {
-      // Fetch the schedule
       const scheduleData: ScheduleEvent[] = await fetchSchedule(year);
-      
-      // Filter completed events (events in the past)
       const today = new Date();
       const completedEvents = scheduleData.filter(event => {
         const eventDate = new Date(event.EventDate);
@@ -38,7 +35,6 @@ export function Standings() {
 
       setSchedule(completedEvents);
 
-      // Fetch results for each completed event
       const driverPointsMap: Map<string, {
         info: Partial<DriverResult>;
         positions: { round: number; position: number; cumulativePoints: number }[];
@@ -55,10 +51,8 @@ export function Standings() {
         try {
           const results: DriverResult[] = await fetchWeekendResults(year, event.RoundNumber);
           
-          // Track which drivers raced in this event
           const driversInThisRound = new Set<string>();
   
-          // Update cumulative points and positions
           results.forEach((result) => {
             driversInThisRound.add(result.DriverId);
             
@@ -74,7 +68,6 @@ export function Standings() {
             driverData.cumulativePoints += result.Points;
           });
 
-          // Calculate positions after this round
           const sortedDrivers = Array.from(driverPointsMap.entries())
             .filter(([driverId, data]) => data.positions.length > 0 || driversInThisRound.has(driverId))
             .sort((a, b) => b[1].cumulativePoints - a[1].cumulativePoints);
@@ -91,7 +84,6 @@ export function Standings() {
         }
       }
 
-      // Convert to array format
       const standingsArray: DriverStanding[] = Array.from(driverPointsMap.entries())
         .filter(([driverId, data]) => {
           return data.positions.length > 0;
@@ -142,7 +134,6 @@ export function Standings() {
 
     return (
       <svg width={chartWidth} height={chartHeight} className="border border-gray-300 bg-gray-900">
-        {/* Y-axis gridlines */}
         {Array.from({ length: maxPosition }, (_, i) => i + 1).map(pos => {
           const y = padding.top + ((pos - 1) / maxPosition) * plotHeight;
           return (
@@ -169,7 +160,6 @@ export function Standings() {
           );
         })}
 
-        {/* X-axis gridlines and labels */}
         {schedule.map((event, idx) => {
           const x = padding.left + (event.RoundNumber / maxRound) * plotWidth;
           return (
@@ -198,7 +188,6 @@ export function Standings() {
           );
         })}
 
-        {/* Axis labels */}
         <text
           x={chartWidth / 2}
           y={chartHeight - 20}
@@ -221,7 +210,6 @@ export function Standings() {
           Position
         </text>
 
-        {/* Driver lines */}
         {driverStandings.map((driver) => {
           const color = driver.teamColor;
           
@@ -259,7 +247,6 @@ export function Standings() {
           );
         })}
 
-        {/* Legend */}
         {driverStandings.map((driver, idx) => {
           const x = chartWidth - padding.right + 20;
           const y = padding.top + idx * 22;

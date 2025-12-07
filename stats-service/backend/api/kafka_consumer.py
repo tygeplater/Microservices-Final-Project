@@ -54,7 +54,7 @@ class StatsKafkaConsumer:
 
     def _consume(self):
         """Consume messages and store in database"""
-        init_db()  # Ensure tables exist
+        init_db()
         
         for message in self.consumer:
             if not self.running:
@@ -96,5 +96,4 @@ class StatsKafkaConsumer:
             self.consumer.close()
         logger.info("Kafka consumer stopped")
 
-# Global consumer instance
 kafka_consumer = StatsKafkaConsumer()

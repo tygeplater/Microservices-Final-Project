@@ -21,6 +21,7 @@ export async function fetchWeekendResults(year: number, round: number | string):
     }
 }
 
+// Fetch Session Info for a Given Year, Round, and Session Code
 export async function fetchSessionInfo(year: number, round: string, sessionCd: string): Promise<any> {
     const response = await fetch(`/api/session-info?year=${year}&round=${round}&sessionCd=${sessionCd}`);
     if (!response.ok) {

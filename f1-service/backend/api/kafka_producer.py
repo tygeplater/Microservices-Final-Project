@@ -96,7 +96,6 @@ class F1KafkaProducer:
             logger.error(f"Failed to send Kafka message: {e}")
 
     def close(self) -> None:
-        # Close only if we actually have a producer
         if self.producer is not None:
             try:
                 self.producer.flush()

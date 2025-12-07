@@ -7,7 +7,6 @@ export async function getUsageData(){
         'Content-Type': 'application/json',
       };
 
-      // Fetch all usage data in parallel
       const [summaryRes, endpointRes, recentRes] = await Promise.all([
         fetch('/stats-service/api/usage/summary', { headers }),
         fetch('/stats-service/api/usage/by-endpoint', { headers }),

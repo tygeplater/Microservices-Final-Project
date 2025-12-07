@@ -49,7 +49,6 @@ export const AdminDashboard: React.FC = () => {
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ marginBottom: '30px' }}>Admin Dashboard - Usage Statistics</h1>
 
-      {/* Summary Cards */}
       {summary && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
           <div style={{ backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -65,7 +64,6 @@ export const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Endpoint Usage Table */}
       <div style={{ marginBottom: '30px' }}>
         <h2>Usage by Endpoint</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -88,7 +86,6 @@ export const AdminDashboard: React.FC = () => {
         </table>
       </div>
 
-      {/* Recent Usage Table */}
       <div>
         <h2>Recent API Usage</h2>
         <div style={{ maxHeight: '500px', overflowY: 'auto' }}>

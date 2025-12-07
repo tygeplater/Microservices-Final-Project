@@ -13,11 +13,9 @@ export const HomePage = () => {
     >
     <Header />
 
-      {/* Content */}
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-6xl mx-auto bg-gray-900/85 rounded-2xl p-8 shadow-2xl">
           <div className="flex flex-col items-center space-y-8">
-            {/* Hero Section */}
             <div className="text-center">
               <h2 className="text-2xl md:text-3xl text-gray-400 mb-4">
                 Your Gateway to Formula 1 Data
@@ -29,9 +27,7 @@ export const HomePage = () => {
               </p>
             </div>
 
-            {/* Feature Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8">
-              {/* Schedule Card */}
               <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-6 transition-all duration-300 hover:border-red-600 hover:-translate-y-1 hover:shadow-xl">
                 <div className="flex flex-col items-center space-y-4">
                   <svg
@@ -57,7 +53,6 @@ export const HomePage = () => {
                 </div>
               </div>
 
-              {/* Live Data Card */}
               <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-6 transition-all duration-300 hover:border-red-600 hover:-translate-y-1 hover:shadow-xl">
                 <div className="flex flex-col items-center space-y-4">
                   <svg
@@ -80,7 +75,6 @@ export const HomePage = () => {
                 </div>
               </div>
 
-              {/* Statistics Card */}
               <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-6 transition-all duration-300 hover:border-red-600 hover:-translate-y-1 hover:shadow-xl">
                 <div className="flex flex-col items-center space-y-4">
                   <svg

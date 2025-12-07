@@ -31,7 +31,6 @@ export function Schedule() {
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
             <Header/>
 
-            {/* Year Selector */}
             <div className="container mx-auto px-4 py-6">
             <div className="flex items-center gap-4">
                 <label htmlFor="year" className="text-lg font-semibold">Select Year:</label>
@@ -48,7 +47,6 @@ export function Schedule() {
             </div>
             </div>
 
-            {/* Content */}
             <main className="container mx-auto px-4 py-8">
             {loading && (
                 <div className="flex justify-center items-center py-20">
@@ -69,31 +67,27 @@ export function Schedule() {
                     key={event.RoundNumber}
                     className="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700 hover:border-red-500 transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/20"
                     >
-                    {/* Round Number Badge */}
                     <div className="flex items-center justify-between mb-4">
                         <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">
                         Round {event.RoundNumber}
                         </span>
                     </div>
 
-                    {/* Event Info */}
                     <h3 className="text-xl font-bold text-red-400 mb-2">{event.EventName}</h3>
                     <p className="text-gray-300 mb-1">📍 {event.Location}, {event.Country}</p>
                     <p className="text-gray-400 text-sm mb-4">
-                        📅 {new Date(event.EventDate).toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric'
+                        {new Date(event.EventDate).toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric'
                         })}
                     </p>
 
-                    {/* Event Format */}
                     <div className="border-t border-gray-700 pt-4">
                         <p className="text-sm text-gray-400 mb-2">
                         <span className="font-semibold text-gray-300">Format:</span> {event.EventFormat}
                         </p>
                         
-                        {/* Sessions */}
                         <div className="space-y-1 text-sm">
                         {event.Session5 && (
                             <p className="text-gray-300">🏁 {event.Session5}</p>

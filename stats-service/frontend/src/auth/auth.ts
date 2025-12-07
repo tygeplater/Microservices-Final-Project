@@ -25,33 +25,27 @@ export interface AuthResponse {
 const TOKEN_KEY = 'auth_token';
 
 export const authService = {
-  // Store token in localStorage
   setToken(token: string): void {
     localStorage.setItem(TOKEN_KEY, token);
   },
 
-  // Get token from localStorage
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   },
 
-  // Remove token from localStorage
   removeToken(): void {
     localStorage.removeItem(TOKEN_KEY);
   },
 
-  // Check if user is authenticated
   isAuthenticated(): boolean {
     return !!this.getToken();
   },
 
-  // Get authorization header
   getAuthHeader(): { Authorization: string } | {} {
     const token = this.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   },
 
-  // Register a new user
   async register(data: RegisterData): Promise<User> {
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: 'POST',
@@ -69,7 +63,6 @@ export const authService = {
     return response.json();
   },
 
-  // Login and get token
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
@@ -89,7 +82,6 @@ export const authService = {
     return authResponse;
   },
 
-  // Get current user info
   async getCurrentUser(): Promise<User> {
     const token = this.getToken();
     if (!token) {
@@ -112,7 +104,6 @@ export const authService = {
     return response.json();
   },
 
-  // Logout
   logout(): void {
     this.removeToken();
   },
