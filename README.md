@@ -204,7 +204,7 @@ Example Usage:
 `localhost:8000/api/health`
 
 ## Stats-Service API Endpoints
-Basic documentation for all of the Stats-Service Endpoints
+Basic documentation for all of the Stats-Service Endpoints, if you need more information go to `localhost:8000/docs` for the F1-Service Swagger documentation or go to `localhost:8001/stats-service/docs` for the Stats-Service Swagger documentation.  
 
 ### POST /api/auth/register
 Register a new account with the stats service. 
