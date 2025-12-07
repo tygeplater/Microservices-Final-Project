@@ -2,6 +2,10 @@
 # CACHE_BUST: 2025-12-06-fix-port-conflict
 FROM node:24-alpine AS frontend-builder
 
+# Accept base path as build argument (default to empty for local dev)
+ARG VITE_BASE_PATH=
+ENV VITE_BASE_PATH=$VITE_BASE_PATH
+
 WORKDIR /app/frontend
 
 COPY frontend/package*.json ./

@@ -1,5 +1,8 @@
+// Get base path from environment variable, default to empty string for local dev
+const basePath = import.meta.env.VITE_BASE_PATH || '';
+
 // Use relative path - nginx will proxy to backend
-const API_BASE_URL = '/api/auth';
+const API_BASE_URL = `${basePath}/api/auth`;
 
 export interface User {
   id: number;
