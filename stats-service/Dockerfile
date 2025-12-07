@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-# CACHE_BUST: 2025-12-06-fix-nginx-config
+# CACHE_BUST: 2025-12-06-fix-nginx-api-routing
 FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app/frontend
