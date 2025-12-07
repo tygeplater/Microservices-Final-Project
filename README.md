@@ -12,6 +12,65 @@ This is the main statistics service for the whole application.  Kafka will be ut
 
 This will allow logs to be stored, and displayed on a simple frontend that visualizes the database data.  
 
+# Local Development with Docker
+
+This guide will help you run the entire microservices application locally using Docker Compose.
+
+## Prerequisites
+
+1. **Docker Desktop**
+   - Install [Docker Desktop](https://www.docker.com/products/docker-desktop) for your operating system
+   - Ensure Docker is running before proceeding
+
+2. **Docker Compose**
+   - Docker Compose is included with Docker Desktop
+   - Verify installation: `docker compose version`
+
+## Quick Start
+
+1. **Start all services:**
+   ```bash
+   docker compose up -d
+   ```
+
+2. **Stop and remove volumes (clears database data):**
+   ```bash
+   docker compose down -v
+   ```
+
+## Services and Ports
+
+Once started, the following services will be available:
+
+| Service | Frontend URL | API URL | Description |
+|---------|-------------|---------|-------------|
+| **F1 Service** | http://localhost:3000 | http://localhost:8000 | F1 sports content service |
+| **Stats Service** | http://localhost:3001/stats-service | http://localhost:8001 | Statistics and logging service |
+| **Kafka** | - | localhost:9092 | Message broker |
+| **PostgreSQL** | - | localhost:5432 | Stats database |
+
+### API Documentation
+
+- **F1 Service API Docs:** http://localhost:8000/docs
+- **Stats Service API Docs:** http://localhost:8001/docs
+
+## Environment Variables
+
+The `docker-compose.yml` file includes pre-configured environment variables for local development:
+
+### F1 Service
+- `KAFKA_SERVER_ENDPOINT=kafka:9092` - Local Kafka broker
+
+### Stats Service
+- `KAFKA_SERVER_ENDPOINT=kafka:9092` - Local Kafka broker
+- `DATABASE_URL=postgresql://statsuser:statspass@postgres-stats:5432/statsdb` - PostgreSQL connection
+- `ADMIN_USERNAME=admin` - Default admin username
+- `ADMIN_PASSWORD=admin123` - Default admin password (change in production!)
+- `JWT_SECRET_KEY=your-secret-key-change-in-production` - JWT signing key
+- `JWT_ALGORITHM=HS256` - JWT algorithm
+- `JWT_EXPIRATION_HOURS=24` - Token expiration time
+
+
 # DigitalOcean App Platform Deployment Guide
 
 ## Prerequisites
