@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-# CACHE_BUST: 2025-12-06-fix-port-conflict
+# CACHE_BUST: 2025-12-06-fix-health-check
 FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app/frontend
@@ -58,4 +58,4 @@ EXPOSE 8080 8001
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/backend
 
-CMD bash -c "cd /app/backend && uvicorn api.api:app --host 0.0.0.0 --port 8001 & nginx -g 'daemon off;'"
+CMD bash -c "cd /app/backend && uvicorn api.api:app --host 0.0.0.0 --port 8001 2>&1 | tee /tmp/uvicorn.log & sleep 2 && nginx -g 'daemon off;'"
