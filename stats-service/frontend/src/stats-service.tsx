@@ -38,7 +38,7 @@ const StatsContent: React.FC = () => {
 
 function App() {
   return (
-    <BrowserRouter basename="/stats-service">
+    <BrowserRouter>
       <AuthProvider>
         <StatsContent />
       </AuthProvider>

@@ -10,14 +10,6 @@ RUN npm ci
 COPY frontend/ .
 RUN npm run build
 
-# Verify that the build produced files with detailed output
-RUN echo "=== Checking build output ===" && \
-    ls -laR /app/frontend/dist && \
-    echo "=== index.html content ===" && \
-    cat /app/frontend/dist/index.html && \
-    test -f /app/frontend/dist/index.html || \
-    (echo "ERROR: Frontend build did not produce index.html!" && exit 1)
-
 # Stage 2: Final image with Python backend and nginx
 FROM python:3.11-slim
 
