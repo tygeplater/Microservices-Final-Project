@@ -177,7 +177,7 @@ Env variables needed for each service:
 # API Documentation
 
 ## F1-Service API Endpoints
-Basic documentation for the F1-Service Endpoints
+Basic documentation for the F1-Service Endpoints, if you need more information go to `localhost:8000/docs` for the F1-Service Swagger documentation.
 
 ### GET /api/session-info
 This endpoint gets the timing information for each driver in a particular session.  And it works with query parameters. 
@@ -204,7 +204,7 @@ Example Usage:
 `localhost:8000/api/health`
 
 ## Stats-Service API Endpoints
-Basic documentation for all of the Stats-Service Endpoints, if you need more information go to `localhost:8000/docs` for the F1-Service Swagger documentation or go to `localhost:8001/stats-service/docs` for the Stats-Service Swagger documentation.  
+Basic documentation for all of the Stats-Service Endpoints, if you need more information go to `localhost:8001/stats-service/docs` for the Stats-Service Swagger documentation.  
 
 ### POST /api/auth/register
 Register a new account with the stats service. 
