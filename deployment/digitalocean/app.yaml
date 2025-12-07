@@ -32,7 +32,7 @@ services:
       deploy_on_push: true
     dockerfile_path: stats-service/Dockerfile
     source_dir: stats-service
-    http_port: 80
+    http_port: 8080
     instance_count: 1
     instance_size_slug: basic-xxs
     health_check:

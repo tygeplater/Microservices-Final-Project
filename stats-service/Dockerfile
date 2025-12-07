@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-# CACHE_BUST: 2025-12-06-fix-frontend-api-paths
+# CACHE_BUST: 2025-12-06-fix-port-conflict
 FROM node:24-alpine AS frontend-builder
 
 WORKDIR /app/frontend
@@ -53,7 +53,7 @@ RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 # Verify nginx config
 RUN nginx -t
 
-EXPOSE 80 8001
+EXPOSE 8080 8001
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/backend
