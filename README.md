@@ -173,3 +173,115 @@ Env variables needed for each service:
    - Select your PostgreSQL database
    - This will automatically set `DATABASE_URL`
 10. Click **Create Resources**
+
+# API Documentation
+
+## F1-Service API Endpoints
+Basic documentation for the F1-Service Endpoints
+
+### GET /api/session-info
+This endpoint gets the timing information for each driver in a particular session.  And it works with query parameters. 
+
+Example Usage: 
+`localhost:8000/api/session-info?year=2024round=Australian Grand Prix&sessionCd=R`
+
+### GET /api/weekend-results
+This endpoint gets the overall results for a race weekend by grabbing the points gained by each driver over the weekend including both Sprint and Race points.  
+
+Example Usage: 
+`localhost:8000/api/weekend-results?year=2024&round=24`
+
+### GET /api/schedule
+This endpoint gets the schedule for the year specified.
+
+Example Usage: 
+`localhost:8000/api/schedule?year=2024`
+
+### GET /api/health
+Simple Health check endpoint
+
+Example Usage:
+`localhost:8000/api/health`
+
+## Stats-Service API Endpoints
+Basic documentation for all of the Stats-Service Endpoints
+
+### POST /api/auth/register
+Register a new account with the stats service. 
+
+Example Usage: 
+```
+curl -X 'POST' \
+  'http://localhost:8001/api/auth/register' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "username": "string",
+  "password": "string"
+}'
+```
+
+### POST /api/auth/login
+Login to an existing account with the stats service
+
+Example Usage:
+```
+curl -X 'POST' \
+  'http://localhost:8001/api/auth/login' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "username": "string",
+  "password": "string"
+}'
+```
+
+### GET /api/auth/me
+Authentication Endpoint for the account service to check you are logged in, and get your account information.
+
+Example Usage: 
+```
+curl -X 'GET' \
+  'http://localhost:8001/api/auth/me' \
+  -H 'accept: application/json'
+```
+
+### GET /api/usage/summary
+Endpoint to get the summary of the usage of the service
+
+Example Usage:
+```
+curl -X 'GET' \
+  'http://localhost:8001/api/usage/summary' \
+  -H 'accept: application/json'
+```
+
+### GET /api/usage/by-endpoint
+Endpoint to get the usage metrics for each specific endpoint
+
+Example Usage:
+```
+curl -X 'GET' \
+  'http://localhost:8001/api/usage/by-endpoint' \
+  -H 'accept: application/json'
+```
+
+### GET /api/usage/recent
+Endpoint to get the most recent endpoint metrics.
+
+Example Usage: 
+```
+curl -X 'GET' \
+  'http://localhost:8001/api/usage/recent?limit=100' \
+  -H 'accept: application/json'
+```
+
+### GET /health
+Health Check Endpoint
+
+Example Usage:
+```
+curl -X 'GET' \
+  'http://localhost:8001/health' \
+  -H 'accept: application/json'
+```
