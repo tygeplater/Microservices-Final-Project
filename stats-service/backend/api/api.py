@@ -64,7 +64,7 @@ async def root():
     return {"message": "Stats Service API", "status": "running"}
 
 # Authentication endpoints
-@app.post("api/auth/register", response_model=UserResponse)
+@app.post("/api/auth/register", response_model=UserResponse)
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """Register a new user"""
     # Check if user already exists
@@ -88,7 +88,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         role=new_user.role
     )
 
-@app.post("api/auth/login", response_model=Token)
+@app.post("/api/auth/login", response_model=Token)
 async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """Login and get JWT token"""
     user = db.query(User).filter(User.username == user_data.username).first()
@@ -100,7 +100,7 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("api/auth/me", response_model=UserResponse)
+@app.get("/api/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
     """Get current user information"""
     return UserResponse(
@@ -110,7 +110,7 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
     )
 
 # Stats Endpoints
-@app.get("api/usage/summary")
+@app.get("/api/usage/summary")
 async def get_usage_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role([Role.ADMIN]))
@@ -124,7 +124,7 @@ async def get_usage_summary(
         "average_response_time_ms": round(avg_response_time, 2) if avg_response_time else 0
     }
 
-@app.get("api/usage/by-endpoint")
+@app.get("/api/usage/by-endpoint")
 async def get_usage_by_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role([Role.ADMIN]))
@@ -145,7 +145,7 @@ async def get_usage_by_endpoint(
         for r in results
     ]
 
-@app.get("api/usage/recent")
+@app.get("/api/usage/recent")
 async def get_recent_usage(
     limit: int = 100,
     db: Session = Depends(get_db),
@@ -166,7 +166,7 @@ async def get_recent_usage(
         for u in usages
     ]
 
-@app.get("api/health")
+@app.get("/health")
 async def health_check():
     return {"status": "healthy"}
 

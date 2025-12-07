@@ -9,9 +9,9 @@ export async function getUsageData(){
 
       // Fetch all usage data in parallel
       const [summaryRes, endpointRes, recentRes] = await Promise.all([
-        fetch('/stats-service/api/usage/summary', { headers }),
-        fetch('/stats-service/api/usage/by-endpoint', { headers }),
-        fetch('/stats-service/api/usage/recent?limit=50', { headers }),
+        fetch('/api/usage/summary', { headers }),
+        fetch('/api/usage/by-endpoint', { headers }),
+        fetch('/api/usage/recent?limit=50', { headers }),
       ]);
 
       if (!summaryRes.ok || !endpointRes.ok || !recentRes.ok) {
